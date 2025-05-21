@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen - Licencia de Armas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #444;
+        }
+        .question {
+            margin-bottom: 30px;
+            border-left: 5px solid #4285f4;
+            padding-left: 15px;
+        }
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .option {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option:hover {
+            background-color: #f0f0f0;
+        }
+        .option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196F3;
+        }
+        .option.correct {
+            background-color: #d4edda;
+            border-color: #28a745;
+        }
+        .option.incorrect {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4285f4;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2b68d9;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .pass {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .fail {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .hidden {
+            display: none;
+        }
+        #question-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        .progress-bar {
+            width: 100%;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 10px;
+            background-color: #4285f4;
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .menu-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #4285f4;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            margin-left: 15px;
+            font-size: 18px;
+        }
+        .status-bar {
+            background-color: #e3f2fd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            color: #0d47a1;
+        }
+        .tema-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            background-color: #e0e0e0;
+            margin-right: 5px;
+        }
+        .question-review {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .question-review.correct {
+            background-color: rgba(212, 237, 218, 0.3);
+            border-left: 5px solid #28a745;
+        }
+        .question-review.incorrect {
+            background-color: rgba(248, 215, 218, 0.3);
+            border-left: 5px solid #dc3545;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Cargando datos...</div>
+    </div>
+
+    <div class="container">
+        <h1>Examen - Licencia de Armas</h1>
+        
+        <div id="status-bar" class="status-bar"></div>
+        
+        <div id="main-menu">
+            <h2>Selecciona el tipo de examen</h2>
+            <div class="menu-buttons">
+                <button id="start-random-exam">Iniciar Examen Aleatorio</button>
+                <button id="start-full-exam">Examen Completo</button>
+            </div>
+        </div>
+        
+        <div id="exam-screen" class="hidden">
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            
+            <div id="question-info"></div>
+            <div id="question-container" class="question">
+                <div class="question-text" id="question-text"></div>
+                <div class="options" id="options-container"></div>
+            </div>
+            
+            <div class="controls">
+                <button id="prev-question" disabled>Anterior</button>
+                <button id="next-question">Siguiente</button>
+            </div>
+        </div>
+        
+        <div id="results-screen" class="hidden">
+            <h2>Resultados del Examen</h2>
+            <div id="result-message" class="result"></div>
+            
+            <div id="question-review"></div>
+            
+            <div class="controls">
+                <button id="restart-exam">Repetir Examen</button>
+                <button id="new-exam">Nuevo Examen</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Configuración de temas y cantidad de preguntas
+        const temasConfig = [
+            { nombre: "TEMA I", cantidad: 4, preguntas: "Teoria/tema1_es.txt", respuestas: "respuestasFinals/tema1r_es.txt" },
+            { nombre: "TEMA II", cantidad: 3, preguntas: "Teoria/tema2_es.txt", respuestas: "respuestasFinals/tema2r_es.txt" },
+            { nombre: "TEMA III", cantidad: 3, preguntas: "Teoria/tema3_es.txt", respuestas: "respuestasFinals/tema3r_es.txt" },
+            { nombre: "TEMA IV", cantidad: 4, preguntas: "Teoria/tema4_es.txt", respuestas: "respuestasFinals/tema4r_es.txt" },
+            { nombre: "TEMA V", cantidad: 3, preguntas: "Teoria/tema5_es.txt", respuestas: "respuestasFinals/tema5r_es.txt" },
+            { nombre: "TEMA VI", cantidad: 3, preguntas: "Teoria/tema6_es.txt", respuestas: "respuestasFinals/tema6r_es.txt" },
+            { nombre: "TEMA VII", cantidad: 4, preguntas: "Teoria/tema7_es.txt", respuestas: "respuestasFinals/tema7r_es.txt" }
+        ];
+        
+        // Variables globales
+        let datosPreguntas = {};
+        let preguntas = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let modoExamen = ""; // "random" o "full"
+        
+        // Elementos DOM
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const statusBar = document.getElementById('status-bar');
+        const mainMenu = document.getElementById('main-menu');
+        const examScreen = document.getElementById('exam-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const startRandomExamButton = document.getElementById('start-random-exam');
+        const startFullExamButton = document.getElementById('start-full-exam');
+        const prevQuestionButton = document.getElementById('prev-question');
+        const nextQuestionButton = document.getElementById('next-question');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const questionInfo = document.getElementById('question-info');
+        const progressBar = document.getElementById('progress-bar');
+        const resultMessage = document.getElementById('result-message');
+        const questionReview = document.getElementById('question-review');
+        const restartExamButton = document.getElementById('restart-exam');
+        const newExamButton = document.getElementById('new-exam');
+        
+        // Inicializar la aplicación
+        async function init() {
+            setupEventListeners();
+            await cargarDatos();
+            loadingOverlay.style.display = 'none';
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            startRandomExamButton.addEventListener('click', () => startExam('random'));
+            startFullExamButton.addEventListener('click', () => startExam('full'));
+            prevQuestionButton.addEventListener('click', () => navigateQuestions(-1));
+            nextQuestionButton.addEventListener('click', () => navigateQuestions(1));
+            restartExamButton.addEventListener('click', restartExam);
+            newExamButton.addEventListener('click', newExam);
+        }
+        
+        // Cargar datos de preguntas y respuestas
+        async function cargarDatos() {
+            statusBar.textContent = "Cargando datos...";
+            
+            let temasExitosos = 0;
+            let temasTotal = temasConfig.length;
+            
+            for (const tema of temasConfig) {
+                try {
+                    // Cargar archivo de preguntas
+                    const respuestaPreguntas = await fetch(tema.preguntas);
+                    
+                    if (!respuestaPreguntas.ok) {
+                        throw new Error(`Error al cargar ${tema.preguntas}: ${respuestaPreguntas.status}`);
+                    }
+                    
+                    const contenidoPreguntas = await respuestaPreguntas.text();
+                    const preguntas = parsePreguntasFile(contenidoPreguntas);
+                    
+                    // Cargar archivo de respuestas
+                    const respuestaRespuestas = await fetch(tema.respuestas);
+                    
+                    if (!respuestaRespuestas.ok) {
+                        throw new Error(`Error al cargar ${tema.respuestas}: ${respuestaRespuestas.status}`);
+                    }
+                    
+                    const contenidoRespuestas = await respuestaRespuestas.text();
+                    const respuestas = parseRespuestasFile(contenidoRespuestas);
+                    
+                    // Guardar datos
+                    if (!datosPreguntas[tema.nombre]) {
+                        datosPreguntas[tema.nombre] = {};
+                    }
+                    
+                    datosPreguntas[tema.nombre].preguntas = preguntas;
+                    datosPreguntas[tema.nombre].respuestas = respuestas;
+                    
+                    temasExitosos++;
+                    statusBar.textContent = `Cargando datos: ${temasExitosos}/${temasTotal} temas cargados`;
+                    
+                } catch (error) {
+                    console.error(`Error al cargar datos del ${tema.nombre}:`, error);
+                    statusBar.textContent += `\nError al cargar ${tema.nombre}: ${error.message}`;
+                }
+            }
+            
+            if (temasExitosos === 0) {
+                statusBar.textContent = "No se pudieron cargar los datos. Asegúrate de estar usando un servidor web local.";
+                // Desactivar botones si no hay datos
+                startRandomExamButton.disabled = true;
+                startFullExamButton.disabled = true;
+            } else if (temasExitosos < temasTotal) {
+                statusBar.textContent = `Se cargaron ${temasExitosos} de ${temasTotal} temas. Algunos datos pueden estar incompletos.`;
+            } else {
+                statusBar.textContent = `Datos cargados correctamente: ${temasExitosos} temas disponibles`;
+            }
+            
+            return temasExitosos > 0;
+        }
+        
+        // Parsear archivo de preguntas
+        function parsePreguntasFile(text) {
+            const preguntasRaw = text.split(/\n\s*\n/).filter(p => p.trim());
+            const preguntas = [];
+            
+            for (const pregunta of preguntasRaw) {
+                if (/^\d+\./.test(pregunta.trim())) {
+                    preguntas.push(pregunta.trim());
+                }
+            }
+            
+            return preguntas;
+        }
+        
+        // Parsear archivo de respuestas
+        function parseRespuestasFile(text) {
+            return text.split('\n')
+                .filter(line => line.trim())
+                .map(line => line.trim());
+        }
+        
+        // Iniciar el examen
+        function startExam(modo) {
+            modoExamen = modo;
+            generateExam(modo);
+            showQuestion(0);
+            
+            // Cambiar a la pantalla de examen
+            mainMenu.classList.add('hidden');
+            examScreen.classList.remove('hidden');
+        }
+        
+        // Generar examen
+        function generateExam(modo) {
+            preguntas = [];
+            userAnswers = [];
+            
+            if (modo === 'random') {
+                // Modo aleatorio: seleccionar preguntas según las cantidades configuradas
+                for (const tema of temasConfig) {
+                    const nombreTema = tema.nombre;
+                    const cantidad = tema.cantidad;
+                    
+                    if (datosPreguntas[nombreTema] && datosPreguntas[nombreTema].preguntas.length > 0) {
+                        const preguntasTema = datosPreguntas[nombreTema].preguntas;
+                        const respuestasTema = datosPreguntas[nombreTema].respuestas;
+                        
+                        const seleccionadas = seleccionarPreguntasAleatorias(
+                            preguntasTema, 
+                            respuestasTema, 
+                            cantidad
+                        );
+                        
+                        for (const [pregunta, respuesta] of seleccionadas) {
+                            preguntas.push({
+                                texto: pregunta,
+                                respuestaCorrecta: respuesta,
+                                tema: nombreTema
+                            });
+                            userAnswers.push(null);
+                        }
+                    }
+                }
+                
+                // Mezclar las preguntas
+                shuffleArray(preguntas);
+            } else {
+                // Modo examen completo: incluir todas las preguntas
+                for (const nombreTema in datosPreguntas) {
+                    const preguntasTema = datosPreguntas[nombreTema].preguntas;
+                    const respuestasTema = datosPreguntas[nombreTema].respuestas;
+                    
+                    for (let i = 0; i < preguntasTema.length; i++) {
+                        preguntas.push({
+                            texto: preguntasTema[i],
+                            respuestaCorrecta: respuestasTema[i],
+                            tema: nombreTema
+                        });
+                        userAnswers.push(null);
+                    }
+                }
+                
+                // Mostrar en orden por tema
+                preguntas.sort((a, b) => {
+                    // Primero ordenar por tema
+                    const temaIndexA = Object.keys(datosPreguntas).indexOf(a.tema);
+                    const temaIndexB = Object.keys(datosPreguntas).indexOf(b.tema);
+                    
+                    if (temaIndexA !== temaIndexB) return temaIndexA - temaIndexB;
+                    
+                    // Luego por número de pregunta
+                    const numA = parseInt(a.texto.match(/^(\d+)\./)[1]);
+                    const numB = parseInt(b.texto.match(/^(\d+)\./)[1]);
+                    return numA - numB;
+                });
+            }
+        }
+        
+        // Seleccionar preguntas aleatorias
+        function seleccionarPreguntasAleatorias(preguntas, respuestas, cantidad) {
+            if (preguntas.length < cantidad) {
+                cantidad = preguntas.length;
+            }
+            
+            // Crear pares de índice y pregunta
+            const paresPreguntas = preguntas.map((p, i) => [i, p]);
+            
+            // Seleccionar aleatoriamente
+            const seleccionados = getRandomSample(paresPreguntas, cantidad);
+            
+            // Ordenar por índice original
+            seleccionados.sort((a, b) => a[0] - b[0]);
+            
+            // Devolver las preguntas y respuestas correspondientes
+            return seleccionados.map(([idx, pregunta]) => [pregunta, respuestas[idx]]);
+        }
+        
+        // Seleccionar elementos aleatorios de un array
+        function getRandomSample(array, count) {
+            const shuffled = [...array].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+        
+        // Mezclar array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // Mostrar pregunta actual
+        function showQuestion(index) {
+            if (index < 0 || index >= preguntas.length) return;
+            
+            const pregunta = preguntas[index];
+            const preguntaFormateada = formatPregunta(pregunta.texto);
+            
+            // Actualizar información de la pregunta
+            questionInfo.innerHTML = `
+                <span>Pregunta ${index + 1} de ${preguntas.length}</span>
+                <span>${pregunta.tema}</span>
+            `;
+            
+            // Actualizar texto de la pregunta
+            questionText.innerHTML = preguntaFormateada.text;
+            
+            // Crear opciones
+            optionsContainer.innerHTML = '';
+            ['A', 'B', 'C'].forEach(letra => {
+                const opcion = document.createElement('div');
+                opcion.className = 'option';
+                if (userAnswers[index] === letra) {
+                    opcion.classList.add('selected');
+                }
+                opcion.textContent = letra + ') ' + preguntaFormateada.options[letra];
+                opcion.addEventListener('click', () => selectOption(letra));
+                optionsContainer.appendChild(opcion);
+            });
+            
+            // Actualizar botones de navegación
+            prevQuestionButton.disabled = index === 0;
+            const isLastQuestion = index === preguntas.length - 1;
+            nextQuestionButton.textContent = isLastQuestion ? 'Finalizar Examen' : 'Siguiente';
+            
+            // Actualizar barra de progreso
+            const progress = ((index + 1) / preguntas.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            // Actualizar índice actual
+            currentQuestionIndex = index;
+        }
+        
+        // Formatear pregunta para extraer texto y opciones
+        // Formatear pregunta para extraer texto y opciones
+        function formatPregunta(textoCompleto) {
+            // Eliminar el número de la pregunta
+            const match = textoCompleto.match(/^\d+\.\s*(.*)/s);
+            const preguntaSinNumero = match ? match[1] : textoCompleto;
+            
+            // Buscar las opciones A, B, C
+            const opciones = {'A': '', 'B': '', 'C': ''};
+            const lineas = preguntaSinNumero.split('\n');
+            let textoPreg = '';
+            
+            // Encontrar donde empiezan las opciones (más flexible)
+            let lineaOpcionesInicio = -1;
+            for (let i = 0; i < lineas.length; i++) {
+                if (lineas[i].match(/^[A][\)\.-]/)) {
+                    lineaOpcionesInicio = i;
+                    break;
+                }
+            }
+            
+            // Si no se encuentran opciones, mostrar todo como texto de pregunta
+            if (lineaOpcionesInicio === -1) {
+                return {
+                    text: preguntaSinNumero,
+                    options: opciones
+                };
+            }
+            
+            // El texto de la pregunta son todas las líneas antes de las opciones
+            textoPreg = lineas.slice(0, lineaOpcionesInicio).join('<br>');
+            
+            // Extraer opciones con un patrón más flexible
+            for (let i = lineaOpcionesInicio; i < lineas.length; i++) {
+                const opcionMatch = lineas[i].match(/^([A-C])[\)\.-](.*)/);
+                if (opcionMatch) {
+                    const letra = opcionMatch[1];
+                    const textoOpcion = opcionMatch[2].trim();
+                    opciones[letra] = textoOpcion;
+                }
+            }
+            
+            return {
+                text: textoPreg,
+                options: opciones
+            };
+        }
+        
+        // Seleccionar una opción
+        function selectOption(letra) {
+            userAnswers[currentQuestionIndex] = letra;
+            
+            // Actualizar UI
+            const options = optionsContainer.querySelectorAll('.option');
+            options.forEach(option => {
+                option.classList.remove('selected');
+                if (option.textContent.startsWith(letra + ')')) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+        
+        // Navegar entre preguntas
+        function navigateQuestions(direction) {
+            const newIndex = currentQuestionIndex + direction;
+            
+            // Si estamos en la última pregunta y queremos avanzar (finalizar)
+            if (currentQuestionIndex === preguntas.length - 1 && direction === 1) {
+                // Comprobar si todas las preguntas tienen respuesta
+                const preguntasSinResponder = userAnswers.filter(r => r === null).length;
+                
+                if (preguntasSinResponder > 0) {
+                    if (!confirm(`Hay ${preguntasSinResponder} pregunta(s) sin responder. ¿Deseas finalizar el examen de todas formas?`)) {
+                        return;
+                    }
+                }
+                
+                // Llamar a finalizar examen
+                finalizarExamen();
+                return;
+            }
+            
+            // Para navegación normal entre preguntas
+            if (newIndex < 0 || newIndex >= preguntas.length) return;
+            
+            // Mostrar la siguiente/anterior pregunta
+            showQuestion(newIndex);
+        }
+        
+        // Finalizar el examen
+        function finalizarExamen() {
+            console.log("Finalizando examen..."); // Para depurar
+            
+            // Ocultar pantalla del examen y mostrar resultados
+            examScreen.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+            
+            // Calcular resultados
+            const totalPreguntas = preguntas.length;
+            let aciertos = 0;
+            
+            for (let i = 0; i < preguntas.length; i++) {
+                if (userAnswers[i] === preguntas[i].respuestaCorrecta) {
+                    aciertos++;
+                }
+            }
+            
+            const porcentaje = (aciertos / totalPreguntas) * 100;
+            const aprobado = porcentaje >= 80; // Cambiado a 80% como solicitado
+            
+            console.log(`Aciertos: ${aciertos}/${totalPreguntas} (${porcentaje.toFixed(1)}%)`); // Para depurar
+            
+            // Mostrar mensaje de resultado
+            resultMessage.className = 'result ' + (aprobado ? 'pass' : 'fail');
+            resultMessage.innerHTML = `
+                <h3>${aprobado ? '¡APROBADO! 🎉' : 'SUSPENDIDO'}</h3>
+                <p>Has acertado ${aciertos} de ${totalPreguntas} preguntas (${porcentaje.toFixed(1)}%).</p>
+                <p>${aprobado ? '¡Felicidades!' : 'Se requiere al menos un 80% de aciertos para aprobar.'}</p>
+            `;
+            
+            // Mostrar revisión de preguntas
+            questionReview.innerHTML = '<h3>Revisión de Preguntas</h3>';
+            
+            for (let i = 0; i < preguntas.length; i++) {
+                const pregunta = preguntas[i];
+                const respuestaUsuario = userAnswers[i];
+                const esCorrecta = respuestaUsuario === pregunta.respuestaCorrecta;
+                
+                const preguntaDiv = document.createElement('div');
+                preguntaDiv.className = `question-review ${esCorrecta ? 'correct' : 'incorrect'}`;
+                
+                const preguntaFormateada = formatPregunta(pregunta.texto);
+                
+                preguntaDiv.innerHTML = `
+                    <p><strong>${i + 1}. ${preguntaFormateada.text}</strong></p>
+                    <p>
+                        Tu respuesta: ${respuestaUsuario ? respuestaUsuario : 'No respondida'} 
+                        ${esCorrecta ? '✓' : '✗'}
+                    </p>
+                    <p>Respuesta correcta: ${pregunta.respuestaCorrecta}</p>
+                `;
+                
+                questionReview.appendChild(preguntaDiv);
+            }
+            
+            console.log("Examen finalizado y resultados mostrados"); // Para depurar
+        }
+        
+        // Reiniciar el mismo examen
+        function restartExam() {
+            // Reiniciar respuestas del usuario
+            userAnswers = userAnswers.map(() => null);
+            
+            // Volver a la pantalla de examen
+            resultsScreen.classList.add('hidden');
+            examScreen.classList.remove('hidden');
+            
+            // Mostrar la primera pregunta
+            showQuestion(0);
+        }
+        
+        // Generar un nuevo examen
+        function newExam() {
+            // Volver al menú principal
+            resultsScreen.classList.add('hidden');
+            mainMenu.classList.remove('hidden');
+        }
+        
+        // Iniciar la aplicación
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

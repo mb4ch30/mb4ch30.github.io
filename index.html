@@ -188,6 +188,23 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        .options-review {
+        margin-left: 20px;
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        }
+
+        .correct-option {
+            color: #155724;
+            font-weight: bold;
+        }
+
+        .incorrect-option {
+            color: #721c24;
+            text-decoration: line-through;
+        }
     </style>
 </head>
 <body>
@@ -205,6 +222,7 @@
             <h2>Selecciona el tipo de examen</h2>
             <div class="menu-buttons">
                 <button id="start-random-exam">Iniciar Examen Aleatorio</button>
+                <button id="start-theme-exam">Examen por Temas</button>
                 <button id="start-full-exam">Examen Completo</button>
             </div>
         </div>
@@ -223,6 +241,28 @@
             <div class="controls">
                 <button id="prev-question" disabled>Anterior</button>
                 <button id="next-question">Siguiente</button>
+            </div>
+        </div>
+
+        <!-- Test por temas -->
+        <div id="theme-selection-screen" class="hidden">
+            <h2>Selecciona un tema</h2>
+            <div id="theme-buttons" class="menu-buttons">
+                <!-- Aquí se generarán los botones de temas dinámicamente -->
+            </div>
+            <div class="controls">
+                <button id="back-to-menu-from-themes">Volver al Menú</button>
+            </div>
+        </div>
+
+        <div id="exam-number-screen" class="hidden">
+            <h2>Selecciona un examen</h2>
+            <div id="exam-number-info" class="status-bar"></div>
+            <div id="exam-number-buttons" class="menu-buttons">
+                <!-- Aquí se generarán los botones de exámenes dinámicamente -->
+            </div>
+            <div class="controls">
+                <button id="back-to-themes">Volver a Temas</button>
             </div>
         </div>
         
@@ -257,6 +297,9 @@
         let currentQuestionIndex = 0;
         let userAnswers = [];
         let modoExamen = ""; // "random" o "full"
+        let selectedTheme = "";
+        let examsByTheme = {};
+        const PREGUNTAS_POR_EXAMEN = 20;
         
         // Elementos DOM
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -292,6 +335,20 @@
             nextQuestionButton.addEventListener('click', () => navigateQuestions(1));
             restartExamButton.addEventListener('click', restartExam);
             newExamButton.addEventListener('click', newExam);
+            
+            // Examen por temas
+            const menuButtons = document.querySelector('.menu-buttons');
+            menuButtons.innerHTML = `
+                <button id="start-random-exam">Examen Aleatorio</button>
+                <button id="start-full-exam">Examen Completo</button>
+                <button id="start-theme-exam">Examen por Temas</button>
+            `;
+
+            document.getElementById('start-random-exam').addEventListener('click', () => startExam('random'));
+            document.getElementById('start-full-exam').addEventListener('click', () => startExam('full'));
+            document.getElementById('start-theme-exam').addEventListener('click', showThemeSelection);
+            document.getElementById('back-to-menu-from-themes').addEventListener('click', showMainMenu);
+            document.getElementById('back-to-themes').addEventListener('click', showThemeSelection);
         }
         
         // Cargar datos de preguntas y respuestas
@@ -451,7 +508,127 @@
                 });
             }
         }
-        
+
+        // Función para mostrar la pantalla de selección de temas
+        function showThemeSelection() {
+            mainMenu.classList.add('hidden');
+            document.getElementById('theme-selection-screen').classList.remove('hidden');
+            examScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            document.getElementById('exam-number-screen').classList.add('hidden');
+            
+            // Generar botones para cada tema
+            const themeButtons = document.getElementById('theme-buttons');
+            themeButtons.innerHTML = '';
+            
+            temasConfig.forEach(tema => {
+                if (datosPreguntas[tema.nombre]) {
+                    const button = document.createElement('button');
+                    button.textContent = tema.nombre;
+                    button.addEventListener('click', () => selectTheme(tema.nombre));
+                    themeButtons.appendChild(button);
+                }
+            });
+        }
+
+        // Función para seleccionar un tema y mostrar los exámenes disponibles
+        function selectTheme(temaNombre) {
+            selectedTheme = temaNombre;
+            document.getElementById('theme-selection-screen').classList.add('hidden');
+            document.getElementById('exam-number-screen').classList.remove('hidden');
+            
+            // Encontrar el tema seleccionado
+            const tema = temasConfig.find(t => t.nombre === temaNombre);
+            const preguntas = datosPreguntas[temaNombre].preguntas;
+            const respuestas = datosPreguntas[temaNombre].respuestas;
+            
+            // Calcular cuántos exámenes completos de 20 preguntas hay
+            const numExamenes = Math.ceil(preguntas.length / PREGUNTAS_POR_EXAMEN);
+            
+            // Generar información sobre este tema
+            const examInfo = document.getElementById('exam-number-info');
+            examInfo.textContent = `${temaNombre}: ${preguntas.length} preguntas disponibles - ${numExamenes} exámenes de 20 preguntas`;
+            
+            // Generar botones para cada examen
+            const examButtons = document.getElementById('exam-number-buttons');
+            examButtons.innerHTML = '';
+            
+            // Crear un diccionario para almacenar los exámenes por tema
+            examsByTheme[temaNombre] = [];
+            
+            for (let i = 0; i < numExamenes; i++) {
+                // Crear el conjunto de preguntas para este examen
+                const startIndex = i * PREGUNTAS_POR_EXAMEN;
+                let examenPreguntas = [];
+                
+                // Si es el último examen y no hay 20 preguntas completas
+                if (i === numExamenes - 1 && preguntas.length % PREGUNTAS_POR_EXAMEN !== 0) {
+                    // Primero tomar las últimas preguntas disponibles
+                    examenPreguntas = preguntas.slice(startIndex).map((pregunta, idx) => ({
+                        texto: pregunta,
+                        respuestaCorrecta: respuestas[startIndex + idx],
+                        tema: temaNombre
+                    }));
+                    
+                    // Calcular cuántas preguntas faltan para llegar a 20
+                    const preguntasFaltantes = PREGUNTAS_POR_EXAMEN - examenPreguntas.length;
+                    
+                    // Seleccionar preguntas aleatorias del resto del banco de preguntas (sin repetirse)
+                    const preguntasDisponibles = preguntas.slice(0, startIndex).map((pregunta, idx) => ({
+                        texto: pregunta,
+                        respuestaCorrecta: respuestas[idx],
+                        tema: temaNombre,
+                        index: idx
+                    }));
+                    
+                    // Seleccionar preguntas aleatorias sin repetirse
+                    const preguntasAleatorias = getRandomSample(preguntasDisponibles, preguntasFaltantes);
+                    
+                    // Añadir las preguntas aleatorias al examen
+                    examenPreguntas = [...examenPreguntas, ...preguntasAleatorias];
+                    
+                    // Mezclar las preguntas
+                    shuffleArray(examenPreguntas);
+                } else {
+                    // Examen completo de 20 preguntas consecutivas
+                    examenPreguntas = preguntas.slice(startIndex, startIndex + PREGUNTAS_POR_EXAMEN).map((pregunta, idx) => ({
+                        texto: pregunta,
+                        respuestaCorrecta: respuestas[startIndex + idx],
+                        tema: temaNombre
+                    }));
+                }
+                
+                examsByTheme[temaNombre][i] = examenPreguntas;
+                
+                // Crear el botón para este examen
+                const button = document.createElement('button');
+                button.textContent = `Examen ${i + 1}`;
+                button.addEventListener('click', () => startThemeExam(temaNombre, i));
+                examButtons.appendChild(button);
+            }
+        }
+        // Función para iniciar un examen por tema
+        function startThemeExam(temaNombre, examenIndex) {
+            modoExamen = "theme";
+            preguntas = examsByTheme[temaNombre][examenIndex];
+            userAnswers = new Array(preguntas.length).fill(null);
+            
+            document.getElementById('exam-number-screen').classList.add('hidden');
+            examScreen.classList.remove('hidden');
+            
+            // Mostrar la primera pregunta
+            showQuestion(0);
+        }
+
+        // Función para volver al menú principal
+        function showMainMenu() {
+            mainMenu.classList.remove('hidden');
+            document.getElementById('theme-selection-screen').classList.add('hidden');
+            document.getElementById('exam-number-screen').classList.add('hidden');
+            examScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+        }
+                
         // Seleccionar preguntas aleatorias
         function seleccionarPreguntasAleatorias(preguntas, respuestas, cantidad) {
             if (preguntas.length < cantidad) {
@@ -509,7 +686,8 @@
                 if (userAnswers[index] === letra) {
                     opcion.classList.add('selected');
                 }
-                opcion.textContent = letra + ') ' + preguntaFormateada.options[letra];
+                // Cambiar aquí para usar negrita en las letras
+                opcion.innerHTML = `<strong>${letra})</strong> ${preguntaFormateada.options[letra]}`;
                 opcion.addEventListener('click', () => selectOption(letra));
                 optionsContainer.appendChild(opcion);
             });
@@ -564,7 +742,11 @@
                 const opcionMatch = lineas[i].match(/^([A-C])[\)\.-](.*)/);
                 if (opcionMatch) {
                     const letra = opcionMatch[1];
-                    const textoOpcion = opcionMatch[2].trim();
+                    let textoOpcion = opcionMatch[2].trim();
+                    
+                    // Eliminar caracteres ".-" al inicio del texto de la opción
+                    textoOpcion = textoOpcion.replace(/^[\.\-\s]+/, '');
+                    
                     opciones[letra] = textoOpcion;
                 }
             }
@@ -660,8 +842,25 @@
                 
                 const preguntaFormateada = formatPregunta(pregunta.texto);
                 
+                // Generar HTML para mostrar las opciones
+                let opcionesHTML = '<div class="options-review">';
+                ['A', 'B', 'C'].forEach(letra => {
+                    const esRespuestaUsuario = respuestaUsuario === letra;
+                    const esRespuestaCorrecta = pregunta.respuestaCorrecta === letra;
+                    
+                    opcionesHTML += `
+                        <p class="${esRespuestaCorrecta ? 'correct-option' : ''} ${esRespuestaUsuario && !esRespuestaCorrecta ? 'incorrect-option' : ''}">
+                            <strong>${letra})</strong> ${preguntaFormateada.options[letra]}
+                            ${esRespuestaCorrecta ? ' ✓' : ''}
+                            ${esRespuestaUsuario && !esRespuestaCorrecta ? ' ✗' : ''}
+                        </p>
+                    `;
+                });
+                opcionesHTML += '</div>';
+                
                 preguntaDiv.innerHTML = `
                     <p><strong>${i + 1}. ${preguntaFormateada.text}</strong></p>
+                    ${opcionesHTML}
                     <p>
                         Tu respuesta: ${respuestaUsuario ? respuestaUsuario : 'No respondida'} 
                         ${esCorrecta ? '✓' : '✗'}
@@ -671,8 +870,6 @@
                 
                 questionReview.appendChild(preguntaDiv);
             }
-            
-            console.log("Examen finalizado y resultados mostrados"); // Para depurar
         }
         
         // Reiniciar el mismo examen

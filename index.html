@@ -1,210 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Examen - Licencia de Armas</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #f5f5f5;
-        }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        h2 {
-            color: #444;
-        }
-        .question {
-            margin-bottom: 30px;
-            border-left: 5px solid #4285f4;
-            padding-left: 15px;
-        }
-        .question-text {
-            font-size: 1.1em;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .options {
-            margin-left: 20px;
-        }
-        .option {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .option:hover {
-            background-color: #f0f0f0;
-        }
-        .option.selected {
-            background-color: #e3f2fd;
-            border-color: #2196F3;
-        }
-        .option.correct {
-            background-color: #d4edda;
-            border-color: #28a745;
-        }
-        .option.incorrect {
-            background-color: #f8d7da;
-            border-color: #dc3545;
-        }
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            background-color: #4285f4;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #2b68d9;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        .result {
-            text-align: center;
-            margin: 20px 0;
-            padding: 20px;
-            border-radius: 5px;
-        }
-        .pass {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .fail {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .hidden {
-            display: none;
-        }
-        #question-info {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #666;
-        }
-        .progress-bar {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        .progress {
-            height: 10px;
-            background-color: #4285f4;
-            border-radius: 5px;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        .menu-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .loading-spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #4285f4;
-            animation: spin 1s linear infinite;
-        }
-        .loading-text {
-            margin-left: 15px;
-            font-size: 18px;
-        }
-        .status-bar {
-            background-color: #e3f2fd;
-            padding: 10px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-            font-size: 0.9em;
-            color: #0d47a1;
-        }
-        .tema-badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            background-color: #e0e0e0;
-            margin-right: 5px;
-        }
-        .question-review {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 5px;
-        }
-        .question-review.correct {
-            background-color: rgba(212, 237, 218, 0.3);
-            border-left: 5px solid #28a745;
-        }
-        .question-review.incorrect {
-            background-color: rgba(248, 215, 218, 0.3);
-            border-left: 5px solid #dc3545;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .options-review {
-        margin-left: 20px;
-        margin-bottom: 15px;
-        padding: 10px;
-        background-color: #f9f9f9;
-        border-radius: 5px;
-        }
-
-        .correct-option {
-            color: #155724;
-            font-weight: bold;
-        }
-
-        .incorrect-option {
-            color: #721c24;
-            text-decoration: line-through;
-        }
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     </style>
 </head>
 <body>
@@ -220,10 +20,10 @@
         
         <div id="main-menu">
             <h2>Selecciona el tipo de examen</h2>
-            <div class="menu-buttons">
-                <button id="start-random-exam">Iniciar Examen Aleatorio</button>
-                <button id="start-theme-exam">Examen por Temas</button>
-                <button id="start-full-exam">Examen Completo</button>
+            <div class="menu-buttons main-menu-buttons">
+                <button id="start-random-exam" class="menu-button">Examen Aleatorio</button>
+                <button id="start-full-exam" class="menu-button">Examen Completo</button>
+                <button id="start-theme-exam" class="menu-button">Examen por Temas</button>
             </div>
         </div>
         
@@ -247,10 +47,10 @@
         <!-- Test por temas -->
         <div id="theme-selection-screen" class="hidden">
             <h2>Selecciona un tema</h2>
-            <div id="theme-buttons" class="menu-buttons">
+            <div id="theme-buttons" class="menu-buttons theme-buttons">
                 <!-- Aquí se generarán los botones de temas dinámicamente -->
             </div>
-            <div class="controls">
+            <div class="controls theme-controls">
                 <button id="back-to-menu-from-themes">Volver al Menú</button>
             </div>
         </div>
@@ -258,21 +58,25 @@
         <div id="exam-number-screen" class="hidden">
             <h2>Selecciona un examen</h2>
             <div id="exam-number-info" class="status-bar"></div>
-            <div id="exam-number-buttons" class="menu-buttons">
+            <div id="exam-number-buttons" class="menu-buttons exam-buttons">
                 <!-- Aquí se generarán los botones de exámenes dinámicamente -->
             </div>
-            <div class="controls">
+            <div class="controls theme-controls">
                 <button id="back-to-themes">Volver a Temas</button>
             </div>
         </div>
         
         <div id="results-screen" class="hidden">
             <h2>Resultados del Examen</h2>
+            <div class="controls controls-results">
+                <button id="back-from-results">Volver</button>
+            </div>
             <div id="result-message" class="result"></div>
             
             <div id="question-review"></div>
             
-            <div class="controls">
+            <div class="controls controls-results">
+                <button id="back-from-results-bottom">Volver</button>
                 <button id="restart-exam">Repetir Examen</button>
                 <button id="new-exam">Nuevo Examen</button>
             </div>
@@ -300,6 +104,7 @@
         let selectedTheme = "";
         let examsByTheme = {};
         const PREGUNTAS_POR_EXAMEN = 20;
+        let totalPreguntas = 0;
         
         // Elementos DOM
         const loadingOverlay = document.getElementById('loading-overlay');
@@ -326,7 +131,7 @@
             await cargarDatos();
             loadingOverlay.style.display = 'none';
         }
-        
+
         // Configurar event listeners
         function setupEventListeners() {
             startRandomExamButton.addEventListener('click', () => startExam('random'));
@@ -335,6 +140,10 @@
             nextQuestionButton.addEventListener('click', () => navigateQuestions(1));
             restartExamButton.addEventListener('click', restartExam);
             newExamButton.addEventListener('click', newExam);
+            
+            // Añadir listeners para los botones de volver
+            document.getElementById('back-from-results').addEventListener('click', goBackFromResults);
+            document.getElementById('back-from-results-bottom').addEventListener('click', goBackFromResults);
             
             // Examen por temas
             const menuButtons = document.querySelector('.menu-buttons');
@@ -350,66 +159,83 @@
             document.getElementById('back-to-menu-from-themes').addEventListener('click', showMainMenu);
             document.getElementById('back-to-themes').addEventListener('click', showThemeSelection);
         }
-        
+
+        // Función para volver desde los resultados según el modo de examen
+        function goBackFromResults() {
+            resultsScreen.classList.add('hidden');
+            
+            if (modoExamen === 'theme') {
+                // Si estamos en examen por tema, volver a la pantalla de selección de exámenes
+                document.getElementById('exam-number-screen').classList.remove('hidden');
+            } else {
+                // Si estamos en examen aleatorio o completo, volver al menú principal
+                mainMenu.classList.remove('hidden');
+            }
+        }
+                
         // Cargar datos de preguntas y respuestas
         async function cargarDatos() {
-            statusBar.textContent = "Cargando datos...";
-            
-            let temasExitosos = 0;
-            let temasTotal = temasConfig.length;
-            
-            for (const tema of temasConfig) {
-                try {
-                    // Cargar archivo de preguntas
-                    const respuestaPreguntas = await fetch(tema.preguntas);
-                    
-                    if (!respuestaPreguntas.ok) {
-                        throw new Error(`Error al cargar ${tema.preguntas}: ${respuestaPreguntas.status}`);
-                    }
-                    
-                    const contenidoPreguntas = await respuestaPreguntas.text();
-                    const preguntas = parsePreguntasFile(contenidoPreguntas);
-                    
-                    // Cargar archivo de respuestas
-                    const respuestaRespuestas = await fetch(tema.respuestas);
-                    
-                    if (!respuestaRespuestas.ok) {
-                        throw new Error(`Error al cargar ${tema.respuestas}: ${respuestaRespuestas.status}`);
-                    }
-                    
-                    const contenidoRespuestas = await respuestaRespuestas.text();
-                    const respuestas = parseRespuestasFile(contenidoRespuestas);
-                    
-                    // Guardar datos
-                    if (!datosPreguntas[tema.nombre]) {
-                        datosPreguntas[tema.nombre] = {};
-                    }
-                    
-                    datosPreguntas[tema.nombre].preguntas = preguntas;
-                    datosPreguntas[tema.nombre].respuestas = respuestas;
-                    
-                    temasExitosos++;
-                    statusBar.textContent = `Cargando datos: ${temasExitosos}/${temasTotal} temas cargados`;
-                    
-                } catch (error) {
-                    console.error(`Error al cargar datos del ${tema.nombre}:`, error);
-                    statusBar.textContent += `\nError al cargar ${tema.nombre}: ${error.message}`;
+        statusBar.textContent = "Cargando datos...";
+        
+        let temasExitosos = 0;
+        let temasTotal = temasConfig.length;
+        totalPreguntas = 0; // Reiniciar el contador de preguntas
+        
+        for (const tema of temasConfig) {
+            try {
+                // Cargar archivo de preguntas
+                const respuestaPreguntas = await fetch(tema.preguntas);
+                
+                if (!respuestaPreguntas.ok) {
+                    throw new Error(`Error al cargar ${tema.preguntas}: ${respuestaPreguntas.status}`);
                 }
+                
+                const contenidoPreguntas = await respuestaPreguntas.text();
+                const preguntas = parsePreguntasFile(contenidoPreguntas);
+                
+                // Actualizar contador de preguntas
+                totalPreguntas += preguntas.length;
+                
+                // Cargar archivo de respuestas
+                const respuestaRespuestas = await fetch(tema.respuestas);
+                
+                if (!respuestaRespuestas.ok) {
+                    throw new Error(`Error al cargar ${tema.respuestas}: ${respuestaRespuestas.status}`);
+                }
+                
+                const contenidoRespuestas = await respuestaRespuestas.text();
+                const respuestas = parseRespuestasFile(contenidoRespuestas);
+                
+                // Guardar datos
+                if (!datosPreguntas[tema.nombre]) {
+                    datosPreguntas[tema.nombre] = {};
+                }
+                
+                datosPreguntas[tema.nombre].preguntas = preguntas;
+                datosPreguntas[tema.nombre].respuestas = respuestas;
+                
+                temasExitosos++;
+                statusBar.textContent = `Cargando datos: ${temasExitosos}/${temasTotal} temas cargados`;
+                
+            } catch (error) {
+                console.error(`Error al cargar datos del ${tema.nombre}:`, error);
+                statusBar.textContent += `\nError al cargar ${tema.nombre}: ${error.message}`;
             }
-            
-            if (temasExitosos === 0) {
-                statusBar.textContent = "No se pudieron cargar los datos. Asegúrate de estar usando un servidor web local.";
-                // Desactivar botones si no hay datos
-                startRandomExamButton.disabled = true;
-                startFullExamButton.disabled = true;
-            } else if (temasExitosos < temasTotal) {
-                statusBar.textContent = `Se cargaron ${temasExitosos} de ${temasTotal} temas. Algunos datos pueden estar incompletos.`;
-            } else {
-                statusBar.textContent = `Datos cargados correctamente: ${temasExitosos} temas disponibles`;
-            }
-            
-            return temasExitosos > 0;
         }
+        
+        if (temasExitosos === 0) {
+            statusBar.textContent = "No se pudieron cargar los datos. Asegúrate de estar usando un servidor web local.";
+            // Desactivar botones si no hay datos
+            startRandomExamButton.disabled = true;
+            startFullExamButton.disabled = true;
+        } else if (temasExitosos < temasTotal) {
+            statusBar.textContent = `Se cargaron ${temasExitosos} de ${temasTotal} temas. Algunos datos pueden estar incompletos. Total: ${totalPreguntas} preguntas disponibles.`;
+        } else {
+            statusBar.textContent = `${temasExitosos} temas cargados con un total de ${totalPreguntas} preguntas disponibles.`;
+        }
+        
+        return temasExitosos > 0;
+    }
         
         // Parsear archivo de preguntas
         function parsePreguntasFile(text) {
@@ -522,12 +348,11 @@
             themeButtons.innerHTML = '';
             
             temasConfig.forEach(tema => {
-                if (datosPreguntas[tema.nombre]) {
-                    const button = document.createElement('button');
-                    button.textContent = tema.nombre;
-                    button.addEventListener('click', () => selectTheme(tema.nombre));
-                    themeButtons.appendChild(button);
-                }
+                const button = document.createElement('button');
+                button.textContent = `${tema.nombre} (${datosPreguntas[tema.nombre]?.preguntas?.length || 0} preguntas)`;
+                button.className = 'theme-button';
+                button.addEventListener('click', () => selectTheme(tema.nombre));
+                themeButtons.appendChild(button);
             });
         }
 
@@ -539,15 +364,15 @@
             
             // Encontrar el tema seleccionado
             const tema = temasConfig.find(t => t.nombre === temaNombre);
-            const preguntas = datosPreguntas[temaNombre].preguntas;
-            const respuestas = datosPreguntas[temaNombre].respuestas;
+            const preguntas = datosPreguntas[temaNombre]?.preguntas || [];
+            const respuestas = datosPreguntas[temaNombre]?.respuestas || [];
             
             // Calcular cuántos exámenes completos de 20 preguntas hay
             const numExamenes = Math.ceil(preguntas.length / PREGUNTAS_POR_EXAMEN);
             
             // Generar información sobre este tema
             const examInfo = document.getElementById('exam-number-info');
-            examInfo.textContent = `${temaNombre}: ${preguntas.length} preguntas disponibles - ${numExamenes} exámenes de 20 preguntas`;
+            examInfo.textContent = `${temaNombre}: ${preguntas.length} preguntas disponibles - ${numExamenes} exámenes de ${PREGUNTAS_POR_EXAMEN} preguntas`;
             
             // Generar botones para cada examen
             const examButtons = document.getElementById('exam-number-buttons');
@@ -557,52 +382,18 @@
             examsByTheme[temaNombre] = [];
             
             for (let i = 0; i < numExamenes; i++) {
-                // Crear el conjunto de preguntas para este examen
-                const startIndex = i * PREGUNTAS_POR_EXAMEN;
-                let examenPreguntas = [];
+                const startIdx = i * PREGUNTAS_POR_EXAMEN;
+                const endIdx = Math.min((i + 1) * PREGUNTAS_POR_EXAMEN, preguntas.length);
                 
-                // Si es el último examen y no hay 20 preguntas completas
-                if (i === numExamenes - 1 && preguntas.length % PREGUNTAS_POR_EXAMEN !== 0) {
-                    // Primero tomar las últimas preguntas disponibles
-                    examenPreguntas = preguntas.slice(startIndex).map((pregunta, idx) => ({
-                        texto: pregunta,
-                        respuestaCorrecta: respuestas[startIndex + idx],
-                        tema: temaNombre
-                    }));
-                    
-                    // Calcular cuántas preguntas faltan para llegar a 20
-                    const preguntasFaltantes = PREGUNTAS_POR_EXAMEN - examenPreguntas.length;
-                    
-                    // Seleccionar preguntas aleatorias del resto del banco de preguntas (sin repetirse)
-                    const preguntasDisponibles = preguntas.slice(0, startIndex).map((pregunta, idx) => ({
-                        texto: pregunta,
-                        respuestaCorrecta: respuestas[idx],
-                        tema: temaNombre,
-                        index: idx
-                    }));
-                    
-                    // Seleccionar preguntas aleatorias sin repetirse
-                    const preguntasAleatorias = getRandomSample(preguntasDisponibles, preguntasFaltantes);
-                    
-                    // Añadir las preguntas aleatorias al examen
-                    examenPreguntas = [...examenPreguntas, ...preguntasAleatorias];
-                    
-                    // Mezclar las preguntas
-                    shuffleArray(examenPreguntas);
-                } else {
-                    // Examen completo de 20 preguntas consecutivas
-                    examenPreguntas = preguntas.slice(startIndex, startIndex + PREGUNTAS_POR_EXAMEN).map((pregunta, idx) => ({
-                        texto: pregunta,
-                        respuestaCorrecta: respuestas[startIndex + idx],
-                        tema: temaNombre
-                    }));
-                }
+                // Guardar las preguntas de este examen
+                examsByTheme[temaNombre][i] = preguntas.slice(startIdx, endIdx).map((p, idx) => ({
+                    ...p,
+                    respuestaCorrecta: respuestas[startIdx + idx]
+                }));
                 
-                examsByTheme[temaNombre][i] = examenPreguntas;
-                
-                // Crear el botón para este examen
                 const button = document.createElement('button');
-                button.textContent = `Examen ${i + 1}`;
+                button.textContent = `Examen ${i + 1} (${endIdx - startIdx} preguntas)`;
+                button.className = 'exam-button';
                 button.addEventListener('click', () => startThemeExam(temaNombre, i));
                 examButtons.appendChild(button);
             }

@@ -8,12 +8,18 @@ function showQuestion(index) {
     
     const pregunta = preguntas[index];
     const preguntaFormateada = formatPregunta(pregunta.texto);
-    
-    // Actualizar información de la pregunta
+      // Actualizar información de la pregunta
     const questionInfo = document.getElementById('question-info');
+    
+    // Determinar si mostrar etiqueta adicional para preguntas aleatorias
+    let etiquetaAdicional = '';
+    if (modoExamen === 'theme' && pregunta.hasOwnProperty('original') && pregunta.original === false) {
+        etiquetaAdicional = '<span class="random-question">(Pregunta complementaria)</span>';
+    }
+    
     questionInfo.innerHTML = `
         <span>Pregunta ${index + 1} de ${preguntas.length}</span>
-        <span>${pregunta.tema}</span>
+        <span>${pregunta.tema} ${etiquetaAdicional}</span>
     `;
     
     // Actualizar texto de la pregunta
@@ -33,13 +39,18 @@ function showQuestion(index) {
         opcion.addEventListener('click', () => selectOption(letra));
         optionsContainer.appendChild(opcion);
     });
-    
-    // Actualizar botones de navegación
+      // Actualizar botones de navegación
     const prevQuestionButton = document.getElementById('prev-question');
     const nextQuestionButton = document.getElementById('next-question');
+    const finishExamButton = document.getElementById('finish-exam');
+    
     prevQuestionButton.disabled = index === 0;
     const isLastQuestion = index === preguntas.length - 1;
     nextQuestionButton.textContent = isLastQuestion ? 'Finalizar Examen' : 'Siguiente';
+    
+    // Ocultar el botón adicional de finalizar en la última pregunta
+    // ya que el botón 'Siguiente' ya cambia a 'Finalizar Examen'
+    finishExamButton.style.display = isLastQuestion ? 'none' : 'inline-block';
     
     // Actualizar barra de progreso
     const progressBar = document.getElementById('progress-bar');
@@ -48,6 +59,27 @@ function showQuestion(index) {
     
     // Actualizar índice actual
     currentQuestionIndex = index;
+}
+
+// Función para confirmar la finalización del examen desde cualquier pregunta
+function confirmarFinalizarExamen() {
+    // Comprobar si es la última pregunta, en ese caso usar la navegación normal
+    if (currentQuestionIndex === preguntas.length - 1) {
+        navigateQuestions(1);
+        return;
+    }
+    
+    // Comprobar si hay preguntas sin responder
+    const preguntasSinResponder = userAnswers.filter(r => r === null).length;
+    
+    // Mostrar mensaje de confirmación
+    const mensaje = preguntasSinResponder > 0
+        ? `Hay ${preguntasSinResponder} pregunta(s) sin responder. ¿Deseas finalizar el examen de todas formas?`
+        : '¿Estás seguro de que deseas finalizar el examen?';
+    
+    if (confirm(mensaje)) {
+        finalizarExamen();
+    }
 }
 
 // Formatear pregunta para extraer texto y opciones

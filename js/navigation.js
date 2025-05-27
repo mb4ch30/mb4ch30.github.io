@@ -55,9 +55,17 @@ function selectTheme(temaNombre) {
     for (let i = 0; i < numExamenes; i++) {
         const startIdx = i * PREGUNTAS_POR_EXAMEN;
         const endIdx = Math.min((i + 1) * PREGUNTAS_POR_EXAMEN, preguntas.length);
+        const preguntasEnRango = endIdx - startIdx;
         
         const button = document.createElement('button');
-        button.textContent = `Examen ${i + 1} (${endIdx - startIdx} preguntas)`;
+        
+        // Si es el último examen y no tiene PREGUNTAS_POR_EXAMEN preguntas completas, se complementará con preguntas aleatorias
+        if (i === numExamenes - 1 && preguntasEnRango < PREGUNTAS_POR_EXAMEN) {
+            button.textContent = `Examen ${i + 1} (${preguntasEnRango} preguntas originales + ${PREGUNTAS_POR_EXAMEN - preguntasEnRango} aleatorias)`;
+        } else {
+            button.textContent = `Examen ${i + 1} (${PREGUNTAS_POR_EXAMEN} preguntas)`;
+        }
+        
         button.className = 'exam-button';
         button.addEventListener('click', () => startThemeExam(temaNombre, i));
         examButtons.appendChild(button);
@@ -95,5 +103,17 @@ function goBackFromResults() {
     } else {
         // Si estamos en examen aleatorio o completo, volver al menú principal
         document.getElementById('main-menu').classList.remove('hidden');
+        
+        // Actualizar el mensaje de estado en el menú principal
+        if (totalPreguntas > 0) {
+            const temasExitosos = Object.keys(datosPreguntas).length;
+            const temasTotal = temasConfig.length;
+            
+            if (temasExitosos < temasTotal) {
+                document.getElementById('status-bar').textContent = `Se cargaron ${temasExitosos} de ${temasTotal} temas. Algunos datos pueden estar incompletos. Total: ${totalPreguntas} preguntas disponibles.`;
+            } else {
+                document.getElementById('status-bar').textContent = `${temasExitosos} temas cargados con un total de ${totalPreguntas} preguntas disponibles.`;
+            }
+        }
     }
 }

@@ -30,6 +30,8 @@ function generateExam(modo) {
     
     if (modo === 'random') {
         // Modo aleatorio: seleccionar preguntas según las cantidades configuradas
+        let preguntasTotales = [];
+        
         for (const tema of temasConfig) {
             const nombreTema = tema.nombre;
             const cantidad = tema.cantidad;
@@ -45,18 +47,23 @@ function generateExam(modo) {
                 );
                 
                 for (const [pregunta, respuesta] of seleccionadas) {
-                    preguntas.push({
+                    preguntasTotales.push({
                         texto: pregunta,
                         respuestaCorrecta: respuesta,
                         tema: nombreTema
                     });
-                    userAnswers.push(null);
                 }
             }
         }
         
-        // Mezclar las preguntas
-        shuffleArray(preguntas);
+        // Mezclar todas las preguntas seleccionadas
+        shuffleArray(preguntasTotales);
+        
+        // Seleccionar solo PREGUNTAS_POR_EXAMEN (20) preguntas
+        preguntas = preguntasTotales.slice(0, PREGUNTAS_POR_EXAMEN);
+        
+        // Inicializar las respuestas del usuario
+        userAnswers = new Array(preguntas.length).fill(null);
     } else {
         // Modo examen completo: incluir todas las preguntas
         for (const nombreTema in datosPreguntas) {
@@ -136,12 +143,47 @@ function startThemeExam(temaNombre, examenIndex) {
     
     // Crear las preguntas formateadas para este examen
     preguntas = [];
+    
+    // Primero, añadir las preguntas del rango específico
     for (let i = startIdx; i < endIdx; i++) {
         preguntas.push({
             texto: preguntasDelTema[i],
             respuestaCorrecta: respuestasDelTema[i],
-            tema: temaNombre
+            tema: temaNombre,
+            original: true // Marca para saber que es una pregunta original del rango
         });
+    }
+    
+    // Si no llegamos a PREGUNTAS_POR_EXAMEN, completar con preguntas aleatorias del mismo tema
+    if (preguntas.length < PREGUNTAS_POR_EXAMEN) {
+        // Crear un conjunto de índices ya usados para evitar repeticiones
+        const indicesUsados = new Set();
+        for (let i = startIdx; i < endIdx; i++) {
+            indicesUsados.add(i);
+        }
+        
+        // Crear un array con los índices disponibles (los que no están en el rango actual)
+        const indicesDisponibles = [];
+        for (let i = 0; i < preguntasDelTema.length; i++) {
+            if (!indicesUsados.has(i)) {
+                indicesDisponibles.push(i);
+            }
+        }
+        
+        // Mezclar los índices disponibles para selección aleatoria
+        shuffleArray(indicesDisponibles);
+        
+        // Añadir preguntas adicionales hasta completar PREGUNTAS_POR_EXAMEN
+        const preguntasAdicionales = PREGUNTAS_POR_EXAMEN - preguntas.length;
+        for (let i = 0; i < preguntasAdicionales && i < indicesDisponibles.length; i++) {
+            const idx = indicesDisponibles[i];
+            preguntas.push({
+                texto: preguntasDelTema[idx],
+                respuestaCorrecta: respuestasDelTema[idx],
+                tema: temaNombre,
+                original: false // Marca para saber que es una pregunta añadida aleatoriamente
+            });
+        }
     }
     
     // Inicializar las respuestas del usuario
@@ -173,4 +215,16 @@ function newExam() {
     // Volver al menú principal
     document.getElementById('results-screen').classList.add('hidden');
     document.getElementById('main-menu').classList.remove('hidden');
+    
+    // Actualizar el mensaje de estado en el menú principal
+    if (totalPreguntas > 0) {
+        const temasExitosos = Object.keys(datosPreguntas).length;
+        const temasTotal = temasConfig.length;
+        
+        if (temasExitosos < temasTotal) {
+            document.getElementById('status-bar').textContent = `Se cargaron ${temasExitosos} de ${temasTotal} temas. Algunos datos pueden estar incompletos. Total: ${totalPreguntas} preguntas disponibles.`;
+        } else {
+            document.getElementById('status-bar').textContent = `${temasExitosos} temas cargados con un total de ${totalPreguntas} preguntas disponibles.`;
+        }
+    }
 }

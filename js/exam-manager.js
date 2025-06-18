@@ -102,23 +102,59 @@ function seleccionarPreguntasAleatorias(preguntas, respuestas, cantidad) {
         cantidad = preguntas.length;
     }
     
-    // Crear pares de índice y pregunta
-    const paresPreguntas = preguntas.map((p, i) => [i, p]);
+    // Crear array de índices
+    const indices = Array.from({length: preguntas.length}, (_, i) => i);
     
-    // Seleccionar aleatoriamente
-    const seleccionados = getRandomSample(paresPreguntas, cantidad);
-    
-    // Ordenar por índice original
-    seleccionados.sort((a, b) => a[0] - b[0]);
+    // Obtener índices aleatorios usando el nuevo método
+    const indicesSeleccionados = getRandomSample(indices, cantidad);
     
     // Devolver las preguntas y respuestas correspondientes
-    return seleccionados.map(([idx, pregunta]) => [pregunta, respuestas[idx]]);
+    return indicesSeleccionados.map(idx => [preguntas[idx], respuestas[idx]]);
 }
 
 // Seleccionar elementos aleatorios de un array
 function getRandomSample(array, count) {
-    const shuffled = [...array].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    // Copia el array para no modificar el original
+    const arrayCopy = [...array];
+    const result = [];
+    
+    // Si pedimos más elementos de los disponibles, devolver todos mezclados
+    if (count >= arrayCopy.length) {
+        shuffleArray(arrayCopy);
+        return arrayCopy;
+    }
+    
+    // Utilizar un conjunto para registrar qué preguntas ya se han usado en sesiones anteriores
+    // y reducir la probabilidad de repeticiones entre exámenes
+    const sessionKey = `used_questions_${modoExamen}`;
+    let usedQuestionsIndices = JSON.parse(localStorage.getItem(sessionKey) || '[]');
+    
+    // Si ya hemos usado demasiadas preguntas, resetear el historial para evitar quedarnos sin preguntas
+    if (usedQuestionsIndices.length > array.length * 0.7) {
+        usedQuestionsIndices = [];
+        localStorage.setItem(sessionKey, JSON.stringify(usedQuestionsIndices));
+    }
+    
+    // Ordenar los índices disponibles priorizando los que no se han usado recientemente
+    const availableIndices = Array.from({length: arrayCopy.length}, (_, i) => i)
+        .sort((a, b) => {
+            const aUsed = usedQuestionsIndices.includes(a);
+            const bUsed = usedQuestionsIndices.includes(b);
+            if (aUsed && !bUsed) return 1;  // Priorizar los no usados
+            if (!aUsed && bUsed) return -1;
+            return 0.5 - Math.random(); // Si ambos están en la misma categoría, mezclar aleatoriamente
+        });
+    
+    // Seleccionar los primeros "count" elementos
+    const selectedIndices = availableIndices.slice(0, count);
+    
+    // Registrar estos índices como usados
+    usedQuestionsIndices.push(...selectedIndices);
+    localStorage.setItem(sessionKey, JSON.stringify([...new Set(usedQuestionsIndices)]));
+    
+    // Devolver los elementos seleccionados en su orden original
+    selectedIndices.sort((a, b) => a - b);
+    return selectedIndices.map(index => arrayCopy[index]);
 }
 
 // Mezclar array

@@ -172,63 +172,74 @@ function startThemeExam(temaNombre, examenIndex) {
     // Obtener los datos del tema y el examen seleccionado
     const preguntasDelTema = datosPreguntas[temaNombre]?.preguntas || [];
     const respuestasDelTema = datosPreguntas[temaNombre]?.respuestas || [];
-    
-    // Calcular el rango de preguntas para este examen
-    const startIdx = examenIndex * PREGUNTAS_POR_EXAMEN;
-    const endIdx = Math.min((examenIndex + 1) * PREGUNTAS_POR_EXAMEN, preguntasDelTema.length);
-    
-    // Crear las preguntas formateadas para este examen
+
     preguntas = [];
-    
-    // Primero, añadir las preguntas del rango específico
-    for (let i = startIdx; i < endIdx; i++) {
-        preguntas.push({
-            texto: preguntasDelTema[i],
-            respuestaCorrecta: respuestasDelTema[i],
-            tema: temaNombre,
-            original: true // Marca para saber que es una pregunta original del rango
-        });
-    }
-    
-    // Si no llegamos a PREGUNTAS_POR_EXAMEN, completar con preguntas aleatorias del mismo tema
-    if (preguntas.length < PREGUNTAS_POR_EXAMEN) {
-        // Crear un conjunto de índices ya usados para evitar repeticiones
-        const indicesUsados = new Set();
-        for (let i = startIdx; i < endIdx; i++) {
-            indicesUsados.add(i);
-        }
-        
-        // Crear un array con los índices disponibles (los que no están en el rango actual)
-        const indicesDisponibles = [];
+
+    if (examenIndex === 'full') {
+        // Examen completo: todas las preguntas del tema
         for (let i = 0; i < preguntasDelTema.length; i++) {
-            if (!indicesUsados.has(i)) {
-                indicesDisponibles.push(i);
-            }
-        }
-        
-        // Mezclar los índices disponibles para selección aleatoria
-        shuffleArray(indicesDisponibles);
-        
-        // Añadir preguntas adicionales hasta completar PREGUNTAS_POR_EXAMEN
-        const preguntasAdicionales = PREGUNTAS_POR_EXAMEN - preguntas.length;
-        for (let i = 0; i < preguntasAdicionales && i < indicesDisponibles.length; i++) {
-            const idx = indicesDisponibles[i];
             preguntas.push({
-                texto: preguntasDelTema[idx],
-                respuestaCorrecta: respuestasDelTema[idx],
+                texto: preguntasDelTema[i],
+                respuestaCorrecta: respuestasDelTema[i],
                 tema: temaNombre,
-                original: false // Marca para saber que es una pregunta añadida aleatoriamente
+                original: true
             });
         }
+    } else {
+        // Calcular el rango de preguntas para este examen parcial
+        const startIdx = examenIndex * PREGUNTAS_POR_EXAMEN;
+        const endIdx = Math.min((examenIndex + 1) * PREGUNTAS_POR_EXAMEN, preguntasDelTema.length);
+
+        // Primero, añadir las preguntas del rango específico
+        for (let i = startIdx; i < endIdx; i++) {
+            preguntas.push({
+                texto: preguntasDelTema[i],
+                respuestaCorrecta: respuestasDelTema[i],
+                tema: temaNombre,
+                original: true // Marca para saber que es una pregunta original del rango
+            });
+        }
+
+        // Si no llegamos a PREGUNTAS_POR_EXAMEN, completar con preguntas aleatorias del mismo tema
+        if (preguntas.length < PREGUNTAS_POR_EXAMEN) {
+            // Crear un conjunto de índices ya usados para evitar repeticiones
+            const indicesUsados = new Set();
+            for (let i = startIdx; i < endIdx; i++) {
+                indicesUsados.add(i);
+            }
+
+            // Crear un array con los índices disponibles (los que no están en el rango actual)
+            const indicesDisponibles = [];
+            for (let i = 0; i < preguntasDelTema.length; i++) {
+                if (!indicesUsados.has(i)) {
+                    indicesDisponibles.push(i);
+                }
+            }
+
+            // Mezclar los índices disponibles para selección aleatoria
+            shuffleArray(indicesDisponibles);
+
+            // Añadir preguntas adicionales hasta completar PREGUNTAS_POR_EXAMEN
+            const preguntasAdicionales = PREGUNTAS_POR_EXAMEN - preguntas.length;
+            for (let i = 0; i < preguntasAdicionales && i < indicesDisponibles.length; i++) {
+                const idx = indicesDisponibles[i];
+                preguntas.push({
+                    texto: preguntasDelTema[idx],
+                    respuestaCorrecta: respuestasDelTema[idx],
+                    tema: temaNombre,
+                    original: false // Marca para saber que es una pregunta añadida aleatoriamente
+                });
+            }
+        }
     }
-    
+
     // Inicializar las respuestas del usuario
     userAnswers = new Array(preguntas.length).fill(null);
-    
+
     // Cambiar a la pantalla de examen
     document.getElementById('exam-number-screen').classList.add('hidden');
     document.getElementById('exam-screen').classList.remove('hidden');
-    
+
     // Mostrar la primera pregunta
     showQuestion(0);
 }

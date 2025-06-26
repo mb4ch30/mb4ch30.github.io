@@ -51,12 +51,22 @@ function selectTheme(temaNombre) {
     // Generar botones para cada examen
     const examButtons = document.getElementById('exam-number-buttons');
     examButtons.innerHTML = '';
-    
+
+    // --- NUEVO: Botón para examen completo del tema ---
+    const fullExamButton = document.createElement('button');
+    fullExamButton.textContent = `Examen completo (${preguntas.length} preguntas)`;
+    fullExamButton.className = 'exam-button exam-full-button';
+    fullExamButton.addEventListener('click', () => {
+        // Llama a startThemeExam con un flag especial para examen completo
+        startThemeExam(temaNombre, 'full');
+    });
+    examButtons.appendChild(fullExamButton);
+    // --- FIN NUEVO ---
+
     for (let i = 0; i < numExamenes; i++) {
         const startIdx = i * PREGUNTAS_POR_EXAMEN;
         const endIdx = Math.min((i + 1) * PREGUNTAS_POR_EXAMEN, preguntas.length);
         const preguntasEnRango = endIdx - startIdx;
-        
         const button = document.createElement('button');
         
         // Si es el último examen y no tiene PREGUNTAS_POR_EXAMEN preguntas completas, se complementará con preguntas aleatorias
